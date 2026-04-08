@@ -132,6 +132,20 @@ input[type=number].ci::-webkit-inner-spin-button { -webkit-appearance: none; }
 .cv-offer   { color: var(--blue); font-weight: 600; font-size: .875rem; }
 .cv-profit  { color: var(--orange); font-size: .72rem; font-weight: 600; }
 
+/* ── Search PC button (inside price cell) ────────────── */
+.c-price    { width: 140px; }
+.price-cell { display: flex; flex-direction: column; gap: 3px; }
+.fetch-btn  {
+  background: var(--surface2); color: var(--blue);
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 3px 8px; font-size: .72rem; font-weight: 600;
+  cursor: pointer; font-family: inherit; align-self: flex-start;
+  transition: background .12s, border-color .12s;
+}
+.fetch-btn:hover    { background: #1e3a5f; border-color: var(--blue); }
+.fetch-btn:disabled { opacity: .5; cursor: default; }
+.fetch-error { color: var(--orange); font-size: .68rem; line-height: 1.3; }
+
 /* ── Delete button ───────────────────────────────────── */
 .del-btn {
   background: transparent; border: 1px solid #3d1a1a;
@@ -287,7 +301,11 @@ function buildRow(row) {
       '<input class="ci" type="number" value="' + escHtml(row.qty) + '" placeholder="0" min="0" oninput="onNum(' + id + ',\'qty\',this.value)">' +
     '</td>' +
     '<td class="c-price">' +
-      '<input class="ci" type="number" value="' + escHtml(row.price) + '" placeholder="0.00" min="0" step="0.01" oninput="onNum(' + id + ',\'price\',this.value)">' +
+      '<div class="price-cell">' +
+        '<input class="ci" type="number" value="' + escHtml(row.price) + '" placeholder="0.00" min="0" step="0.01" oninput="onNum(' + id + ',\'price\',this.value)">' +
+        '<button class="fetch-btn" id="search-btn-' + id + '" style="display:' + (row.item ? 'inline-flex' : 'none') + ';" onclick="searchPrice(' + id + ')">Search PC</button>' +
+        '<span class="fetch-error" id="search-err-' + id + '" style="display:none;"></span>' +
+      '</div>' +
     '</td>' +
     '<td class="c-total cv-total" id="total-' + id + '">$0.00</td>' +
     '<td class="c-del"><button class="del-btn" onclick="deleteRow(' + id + ')">\u2715</button></td>';
@@ -343,6 +361,10 @@ function updateTotals() {
 function onText(id, field, value) {
   var row = findRow(id);
   if (row) row[field] = value;
+  if (field === 'item') {
+    var btn = el('search-btn-' + id);
+    if (btn) btn.style.display = value.trim() ? 'inline-flex' : 'none';
+  }
 }
 
 function onNum(id, field, value) {
@@ -350,6 +372,96 @@ function onNum(id, field, value) {
   if (row) row[field] = value;
   updateRowCalcs(id);
   updateTotals();
+}
+
+// CORS proxy — allorigins returns raw page content, swap URL if it goes down
+// Format: https://api.allorigins.win/raw?url=ENCODED_TARGET_URL
+var CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+async function searchPrice(rowId) {
+  var row = findRow(rowId);
+  if (!row || !row.item.trim()) return;
+
+  var btn        = el('search-btn-' + rowId);
+  var err        = el('search-err-' + rowId);
+  var priceInput = document.querySelector('#row-' + rowId + ' td.c-price input');
+
+  btn.textContent   = 'Searching\u2026';
+  btn.disabled      = true;
+  err.style.display = 'none';
+
+  try {
+    // Step 1: search PriceCharting by item name
+    var searchUrl = 'https://www.pricecharting.com/search-products?q=' +
+                    encodeURIComponent(row.item) + '&type=prices';
+    console.log('[SearchPC] Step 1 — search URL:', searchUrl);
+
+    var resp = await fetch(CORS_PROXY + encodeURIComponent(searchUrl));
+    console.log('[SearchPC] Search response status:', resp.status);
+    if (!resp.ok) throw new Error('Search HTTP ' + resp.status);
+
+    var html = await resp.text();
+    console.log('[SearchPC] Search HTML length:', html.length, '| First 300 chars:', html.slice(0, 300));
+
+    var doc  = new DOMParser().parseFromString(html, 'text/html');
+
+    // Find first product link — PriceCharting game pages all contain /game/ in the path
+    var productHref = null;
+    var links = doc.querySelectorAll('a[href*="/game/"]');
+    console.log('[SearchPC] Links with /game/ found:', links.length);
+    for (var i = 0; i < links.length; i++) {
+      var txt = links[i].textContent.trim();
+      if (txt.length > 0) {
+        productHref = links[i].getAttribute('href');
+        console.log('[SearchPC] First product link:', productHref, '| text:', txt);
+        break;
+      }
+    }
+    if (!productHref) throw new Error('No product links found — site may have returned a bot-check page');
+
+    if (productHref.indexOf('http') !== 0)
+      productHref = 'https://www.pricecharting.com' + productHref;
+
+    // Step 2: fetch the product page and extract the price
+    console.log('[SearchPC] Step 2 — product URL:', productHref);
+    var resp2 = await fetch(CORS_PROXY + encodeURIComponent(productHref));
+    console.log('[SearchPC] Product page status:', resp2.status);
+    if (!resp2.ok) throw new Error('Product page HTTP ' + resp2.status);
+
+    var html2 = await resp2.text();
+    console.log('[SearchPC] Product HTML length:', html2.length);
+
+    var doc2 = new DOMParser().parseFromString(html2, 'text/html');
+
+    // Try price element IDs in preferred order: used → complete → loose
+    var priceEl =
+      doc2.getElementById('used_price') ||
+      doc2.getElementById('complete_price') ||
+      doc2.getElementById('loose_price');
+
+    console.log('[SearchPC] Price element:', priceEl ? '#' + priceEl.id + ' = "' + priceEl.textContent.trim() + '"' : 'NOT FOUND');
+    if (!priceEl) throw new Error('Price element not found on product page');
+
+    var raw   = priceEl.textContent.replace(/[$,]/g, '').trim();
+    var price = parseFloat(raw);
+    console.log('[SearchPC] Parsed price:', price);
+    if (!isFinite(price) || price <= 0) throw new Error('Invalid price "' + raw + '"');
+
+    // Populate the field and trigger all downstream calculations
+    priceInput.value = price.toFixed(2);
+    row.price        = price.toFixed(2);
+    updateRowCalcs(rowId);
+    updateTotals();
+
+    btn.textContent = 'Search PC';
+    btn.disabled    = false;
+  } catch (e) {
+    console.error('[SearchPC] Failed:', e.message);
+    err.textContent   = 'Not found \u2014 enter manually';
+    err.style.display = 'block';
+    btn.textContent   = 'Search PC';
+    btn.disabled      = false;
+  }
 }
 
 function onPctInput(colId, value) {
