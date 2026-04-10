@@ -290,7 +290,6 @@ function buildColTh(col) {
     '<div class="pct-inner">' +
       '<span class="lbl-top">Offer at</span>' +
       '<input type="text" id="pct-' + col.id + '" class="pct-input" value="' + escHtml(col.pct) + '" oninput="onPctInput(' + col.id + ',this.value)">' +
-      '<span class="lbl-bot">% col ' + col.id + '</span>' +
       '<button class="rm-col-btn" onclick="removePctCol(' + col.id + ')" title="Remove column">&times; remove</button>' +
     '</div>';
   return th;
