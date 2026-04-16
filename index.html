@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚡ Pokemon Sealed Lot Comp</title>
+<title>&#9889; Pokemon Lot Comp &amp; Temu Calculator</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -30,6 +30,29 @@ body {
   min-height: 100vh;
   padding: 28px 24px 60px;
 }
+
+/* ── Tab nav ─────────────────────────────────────────── */
+.tab-nav {
+  display: flex; gap: 4px; margin-bottom: 24px;
+  border-bottom: 2px solid var(--border); padding-bottom: 0;
+}
+.tab-btn {
+  padding: 9px 22px; border: none; border-radius: 6px 6px 0 0;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer;
+  background: var(--surface); color: var(--muted);
+  border: 1px solid var(--border); border-bottom: none;
+  font-family: inherit; letter-spacing: .3px;
+  transition: background .12s, color .12s;
+  margin-bottom: -2px;
+}
+.tab-btn.active {
+  background: var(--surface2); color: var(--gold);
+  border-color: var(--gold); border-bottom: 2px solid var(--surface2);
+}
+.tab-btn:not(.active):hover { background: var(--surface2); color: var(--text); }
+
+.page { display: none; }
+.page.active { display: block; }
 
 /* ── Header ──────────────────────────────────────────── */
 .app-header { text-align: center; margin-bottom: 28px; user-select: none; }
@@ -67,7 +90,6 @@ body {
 }
 table { width: 100%; border-collapse: collapse; background: var(--surface); }
 
-/* ── thead ───────────────────────────────────────────── */
 thead { background: #0a1020; }
 thead tr { border-bottom: 2px solid var(--gold); }
 thead th {
@@ -97,14 +119,12 @@ thead th.pct-head { background: #0c1428; text-align: center; padding: 8px 6px; }
 }
 .rm-col-btn:hover { color: var(--red); background: var(--red-dim); border-color: var(--red); }
 
-/* ── tbody ───────────────────────────────────────────── */
 tbody tr:nth-child(even) { background: #17243a; }
 tbody tr:nth-child(odd)  { background: var(--surface); }
 tbody tr:hover           { background: #1d2f4a; }
 tbody tr { transition: background .1s; }
 tbody td { padding: 5px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: .8125rem; }
 
-/* ── Cell inputs ─────────────────────────────────────── */
 .ci {
   background: transparent; border: 1px solid transparent;
   border-radius: 4px; color: var(--text); padding: 4px 6px;
@@ -117,23 +137,19 @@ input[type=number].ci { -moz-appearance: textfield; }
 input[type=number].ci::-webkit-outer-spin-button,
 input[type=number].ci::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-/* ── Column sizing ───────────────────────────────────── */
 .c-item  { min-width: 160px; }
 .c-qty   { width: 68px; }
-.c-price { width: 110px; }
+.c-price { width: 140px; }
 .c-total { width: 112px; }
 .c-pct   { width: 120px; text-align: center; }
 .c-del   { width: 44px; text-align: center; }
 
-/* ── Computed cells ──────────────────────────────────── */
 .cv-total  { color: var(--green); font-weight: 700; }
 
 .offer-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .cv-offer   { color: var(--blue); font-weight: 600; font-size: .875rem; }
 .cv-profit  { color: var(--orange); font-size: .72rem; font-weight: 600; }
 
-/* ── Search PC button (inside price cell) ────────────── */
-.c-price    { width: 140px; }
 .price-cell { display: flex; flex-direction: column; gap: 3px; }
 .fetch-btn  {
   background: var(--surface2); color: var(--blue);
@@ -146,7 +162,6 @@ input[type=number].ci::-webkit-inner-spin-button { -webkit-appearance: none; }
 .fetch-btn:disabled { opacity: .5; cursor: default; }
 .fetch-error { color: var(--orange); font-size: .68rem; line-height: 1.3; }
 
-/* ── Delete button ───────────────────────────────────── */
 .del-btn {
   background: transparent; border: 1px solid #3d1a1a;
   color: var(--red); padding: 3px 8px; border-radius: 4px;
@@ -155,7 +170,6 @@ input[type=number].ci::-webkit-inner-spin-button { -webkit-appearance: none; }
 }
 .del-btn:hover { background: var(--red-dim); border-color: var(--red); }
 
-/* ── tfoot ───────────────────────────────────────────── */
 tfoot { background: #08101e; }
 tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 700; font-size: .8125rem; }
 .foot-lbl   { color: var(--gold); font-size: .72rem; text-transform: uppercase; letter-spacing: .6px; }
@@ -164,9 +178,132 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
 .foot-offer-val  { color: var(--blue); font-size: .95rem; }
 .foot-profit-val { color: var(--orange); font-size: .75rem; font-weight: 600; }
 
+/* ── Temu Calculator ─────────────────────────────────── */
+.temu-header { text-align: center; margin-bottom: 28px; user-select: none; }
+.temu-header h1 {
+  font-size: 2rem; font-weight: 800; color: var(--gold);
+  letter-spacing: 1.5px; text-shadow: 0 0 24px rgba(251,191,36,.25); margin-bottom: 5px;
+}
+.temu-header p { color: var(--muted); font-size: 0.85rem; }
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 24px;
+}
+
+.calc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+
+.calc-card h2 {
+  color: var(--gold);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.calc-card .card-desc {
+  color: var(--muted);
+  font-size: .78rem;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.input-group {
+  display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
+}
+.input-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.input-row label {
+  font-size: .78rem; color: var(--muted); white-space: nowrap;
+  flex: 0 0 140px; text-align: right; letter-spacing: .2px;
+}
+.temu-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: .875rem;
+  font-family: inherit;
+  transition: border-color .12s, box-shadow .12s;
+  -moz-appearance: textfield;
+}
+.temu-input::-webkit-outer-spin-button,
+.temu-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.temu-input:focus { outline: none; border-color: var(--gold-dim); box-shadow: 0 0 8px rgba(251,191,36,.2); }
+.temu-input.err   { border-color: var(--red); }
+.input-unit {
+  font-size: .78rem; color: var(--muted); flex: 0 0 24px;
+}
+
+.input-error {
+  color: var(--red); font-size: .72rem; margin-left: 152px;
+  margin-top: -6px;
+}
+
+.divider-label {
+  color: var(--gold); font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .8px;
+  margin: 4px 0 2px; padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+
+.results-box {
+  background: #0a1020;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.result-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: .8125rem;
+}
+.result-row .r-label { color: var(--muted); }
+.result-row .r-value { font-weight: 700; }
+.r-value.green  { color: var(--green); }
+.r-value.blue   { color: var(--blue); }
+.r-value.orange { color: var(--orange); }
+.r-value.gold   { color: var(--gold); }
+.r-value.red    { color: var(--red); }
+
+.result-divider { border: none; border-top: 1px solid var(--border); margin: 2px 0; }
+
+.tier-breakdown {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.tier-breakdown .tb-title {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .7px;
+  color: var(--muted); margin-bottom: 6px;
+}
+.tier-row {
+  display: flex; justify-content: space-between;
+  font-size: .75rem; color: var(--text); padding: 3px 0;
+  border-bottom: 1px solid rgba(46,63,92,.4);
+}
+.tier-row:last-child { border-bottom: none; }
+.tier-row .t-label { color: var(--muted); }
+.tier-row .t-credit { color: var(--green); font-weight: 600; }
+
 /* ── Print / PDF styles ──────────────────────────────── */
 @media print {
   body { background: #fff; color: #000; padding: 12px; font-size: 11px; }
+  .tab-nav, #page-temu { display: none !important; }
+  #page-lot { display: block !important; }
   .toolbar, .app-header p, .del-btn, .search-btn, .fetch-error,
   .rm-col-btn, #hdr-del-anchor, .c-del { display: none !important; }
   .app-header h1 { color: #000; font-size: 1.2rem; text-shadow: none; margin-bottom: 4px; }
@@ -198,6 +335,17 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
 </head>
 <body>
 
+<!-- ── Tab Navigation ──────────────────────────────────────────── -->
+<nav class="tab-nav">
+  <button class="tab-btn active" id="tab-lot"  onclick="switchTab('lot')">&#9889; Lot Comp</button>
+  <button class="tab-btn"        id="tab-temu" onclick="switchTab('temu')">&#127800; Temu Promo</button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- PAGE 1 — Pokemon Lot Comp                                     -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-lot">
+
 <div class="app-header">
   <h1>&#9889; Pokemon Sealed Lot Comp</h1>
   <p>Price sealed lots with live percentage-based offer columns &mdash; fully local &amp; private</p>
@@ -221,7 +369,6 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
         <th class="c-qty">Qty</th>
         <th class="c-price">Market Price</th>
         <th class="c-total">Total</th>
-        <!-- dynamic pct <th>s injected here -->
         <th class="c-del" id="hdr-del-anchor"></th>
       </tr>
     </thead>
@@ -231,15 +378,194 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
         <td colspan="2"><div class="foot-lbl">&#931; Totals</div></td>
         <td></td>
         <td class="c-total"><div id="ft-market" class="foot-market">$0.00</div></td>
-        <!-- dynamic pct <td>s injected here -->
         <td id="ftr-del-anchor"></td>
       </tr>
     </tfoot>
   </table>
 </div>
 
+</div><!-- /page-lot -->
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- PAGE 2 — Temu Promo Calculator                                -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-temu">
+
+<div class="temu-header">
+  <h1>&#127800; Temu Promo Calculator</h1>
+  <p>Calculate optimal spend for Claim Credit and Win Credit promotions</p>
+</div>
+
+<div class="calc-grid">
+
+  <!-- ── Section 1: Claim Credit ─────────────────────────── -->
+  <div class="calc-card">
+    <h2>Claim Credit &nbsp;/&nbsp; Credit777</h2>
+    <p class="card-desc">
+      Tiered credit promo — earn a % of your spend as credit at each tier.
+      Enter the tier thresholds, rates, and your credit target.
+    </p>
+
+    <div class="input-group">
+      <div class="divider-label">Tier 1</div>
+      <div class="input-row">
+        <label>Rate 1</label>
+        <input type="number" class="temu-input" id="cc-r1" value="10" min="0" step="any" oninput="calcClaimCredit()">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="input-row">
+        <label>Spend up to</label>
+        <input type="number" class="temu-input" id="cc-t1" value="10" min="0" step="any" oninput="calcClaimCredit()">
+        <span class="input-unit">$</span>
+      </div>
+
+      <div class="divider-label">Tier 2</div>
+      <div class="input-row">
+        <label>Rate 2</label>
+        <input type="number" class="temu-input" id="cc-r2" value="60" min="0" step="any" oninput="calcClaimCredit()">
+        <span class="input-unit">%</span>
+      </div>
+      <div class="input-row">
+        <label>Spend up to</label>
+        <input type="number" class="temu-input" id="cc-t2" value="260" min="0" step="any" oninput="calcClaimCredit()">
+        <span class="input-unit">$</span>
+      </div>
+
+      <div class="divider-label">Tier 3 (unlimited)</div>
+      <div class="input-row">
+        <label>Rate 3</label>
+        <input type="number" class="temu-input" id="cc-r3" value="150" min="0" step="any" oninput="calcClaimCredit()">
+        <span class="input-unit">%</span>
+      </div>
+
+      <div class="divider-label">Goal</div>
+      <div class="input-row">
+        <label>Credit target</label>
+        <input type="number" class="temu-input" id="cc-target" value="186" min="0" step="any" oninput="calcClaimCredit()">
+        <span class="input-unit">$</span>
+      </div>
+    </div>
+    <div id="cc-err" class="input-error" style="display:none;"></div>
+
+    <div class="results-box" id="cc-results">
+      <div class="result-row">
+        <span class="r-label">Total spend (X)</span>
+        <span class="r-value blue" id="cc-spend">—</span>
+      </div>
+      <div class="result-row">
+        <span class="r-label">Credit earned</span>
+        <span class="r-value green" id="cc-credit">—</span>
+      </div>
+      <hr class="result-divider">
+      <div class="result-row">
+        <span class="r-label">Net cost</span>
+        <span class="r-value orange" id="cc-net">—</span>
+      </div>
+      <div class="result-row">
+        <span class="r-label">Effective discount</span>
+        <span class="r-value gold" id="cc-disc">—</span>
+      </div>
+
+      <div class="tier-breakdown">
+        <div class="tb-title">Per-tier breakdown</div>
+        <div class="tier-row">
+          <span class="t-label">Tier 1 spend</span>
+          <span class="t-credit" id="cc-t1-spend">—</span>
+        </div>
+        <div class="tier-row">
+          <span class="t-label">Tier 1 credit</span>
+          <span class="t-credit" id="cc-t1-credit">—</span>
+        </div>
+        <div class="tier-row">
+          <span class="t-label">Tier 2 spend</span>
+          <span class="t-credit" id="cc-t2-spend">—</span>
+        </div>
+        <div class="tier-row">
+          <span class="t-label">Tier 2 credit</span>
+          <span class="t-credit" id="cc-t2-credit">—</span>
+        </div>
+        <div class="tier-row">
+          <span class="t-label">Tier 3 spend</span>
+          <span class="t-credit" id="cc-t3-spend">—</span>
+        </div>
+        <div class="tier-row">
+          <span class="t-label">Tier 3 credit</span>
+          <span class="t-credit" id="cc-t3-credit">—</span>
+        </div>
+      </div>
+    </div>
+  </div><!-- /claim credit card -->
+
+  <!-- ── Section 2: Win Credit ───────────────────────────── -->
+  <div class="calc-card">
+    <h2>Win Credit</h2>
+    <p class="card-desc">
+      Calculate spend needed to win credit using the formula:
+      <strong style="color:var(--gold)">X = (A &minus; B) / C / D</strong>
+    </p>
+
+    <div class="input-group">
+      <div class="input-row">
+        <label>A &nbsp;(credit goal)</label>
+        <input type="number" class="temu-input" id="wc-a" value="2" min="0" step="any" oninput="calcWinCredit()">
+        <span class="input-unit">$</span>
+      </div>
+      <div class="input-row">
+        <label>B &nbsp;(base credit)</label>
+        <input type="number" class="temu-input" id="wc-b" value="0.66" min="0" step="any" oninput="calcWinCredit()">
+        <span class="input-unit">$</span>
+      </div>
+      <div class="input-row">
+        <label>C &nbsp;(rate)</label>
+        <input type="number" class="temu-input" id="wc-c" value="0.0097" min="0" step="any" oninput="calcWinCredit()">
+        <span class="input-unit"></span>
+      </div>
+      <div class="input-row">
+        <label>D &nbsp;(multiplier)</label>
+        <input type="number" class="temu-input" id="wc-d" value="1.055" min="0" step="any" oninput="calcWinCredit()">
+        <span class="input-unit"></span>
+      </div>
+    </div>
+    <div id="wc-err" class="input-error" style="display:none;"></div>
+
+    <div class="results-box">
+      <div class="result-row">
+        <span class="r-label">Spend (X)</span>
+        <span class="r-value blue" id="wc-spend">—</span>
+      </div>
+      <div class="result-row">
+        <span class="r-label">Remaining to confirm</span>
+        <span class="r-value orange" id="wc-remaining">—</span>
+      </div>
+      <hr class="result-divider">
+      <div class="result-row">
+        <span class="r-label">Effective credit rate</span>
+        <span class="r-value gold" id="wc-rate">—</span>
+      </div>
+    </div>
+  </div><!-- /win credit card -->
+
+</div><!-- /calc-grid -->
+</div><!-- /page-temu -->
+
 <script>
-// ── State ────────────────────────────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ════════════════════════════════════════════════════════════════
+function switchTab(name) {
+  var pages = document.querySelectorAll('.page');
+  var tabs  = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  for (var i = 0; i < tabs.length;  i++) tabs[i].classList.remove('active');
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-'  + name).classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════
+// PAGE 1 — LOT COMP
+// ════════════════════════════════════════════════════════════════
+
+// ── State ────────────────────────────────────────────────────────
 var rows      = [];
 var nextId    = 1;
 var nextColId = 4;
@@ -249,7 +575,7 @@ var pctCols   = [
   { id: 3, pct: 65 }
 ];
 
-// ── Utilities ────────────────────────────────────────────────────────────────
+// ── Utilities ────────────────────────────────────────────────────
 function el(id) { return document.getElementById(id); }
 
 function fmt(n) {
@@ -281,7 +607,7 @@ function findRow(rowId) {
   return null;
 }
 
-// ── Build DOM pieces ─────────────────────────────────────────────────────────
+// ── Build DOM pieces ─────────────────────────────────────────────
 function buildColTh(col) {
   var th = document.createElement('th');
   th.className = 'pct-head c-pct';
@@ -347,7 +673,7 @@ function buildRow(row) {
   return tr;
 }
 
-// ── Update calculations ───────────────────────────────────────────────────────
+// ── Update calculations ───────────────────────────────────────────
 function updateRowColCalc(rowId, colId) {
   var row = findRow(rowId);
   var col = findCol(colId);
@@ -387,7 +713,7 @@ function updateTotals() {
   }
 }
 
-// ── Input handlers ────────────────────────────────────────────────────────────
+// ── Input handlers ────────────────────────────────────────────────
 function onText(id, field, value) {
   var row = findRow(id);
   if (row) row[field] = value;
@@ -404,8 +730,6 @@ function onNum(id, field, value) {
   updateTotals();
 }
 
-// CORS proxy — allorigins returns raw page content, swap URL if it goes down
-// Format: https://api.allorigins.win/raw?url=ENCODED_TARGET_URL
 var CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
 async function searchPrice(rowId) {
@@ -421,72 +745,42 @@ async function searchPrice(rowId) {
   err.style.display = 'none';
 
   try {
-    // Step 1: search PriceCharting by item name
     var searchUrl = 'https://www.pricecharting.com/search-products?q=' +
                     encodeURIComponent(row.item) + '&type=prices';
-    console.log('[SearchPC] Step 1 — search URL:', searchUrl);
-
     var resp = await fetch(CORS_PROXY + encodeURIComponent(searchUrl));
-    console.log('[SearchPC] Search response status:', resp.status);
     if (!resp.ok) throw new Error('Search HTTP ' + resp.status);
-
     var html = await resp.text();
-    console.log('[SearchPC] Search HTML length:', html.length, '| First 300 chars:', html.slice(0, 300));
-
     var doc  = new DOMParser().parseFromString(html, 'text/html');
-
-    // Find first product link — PriceCharting game pages all contain /game/ in the path
     var productHref = null;
     var links = doc.querySelectorAll('a[href*="/game/"]');
-    console.log('[SearchPC] Links with /game/ found:', links.length);
     for (var i = 0; i < links.length; i++) {
-      var txt = links[i].textContent.trim();
-      if (txt.length > 0) {
-        productHref = links[i].getAttribute('href');
-        console.log('[SearchPC] First product link:', productHref, '| text:', txt);
-        break;
+      if (links[i].textContent.trim().length > 0) {
+        productHref = links[i].getAttribute('href'); break;
       }
     }
-    if (!productHref) throw new Error('No product links found — site may have returned a bot-check page');
-
+    if (!productHref) throw new Error('No product found');
     if (productHref.indexOf('http') !== 0)
       productHref = 'https://www.pricecharting.com' + productHref;
 
-    // Step 2: fetch the product page and extract the price
-    console.log('[SearchPC] Step 2 — product URL:', productHref);
     var resp2 = await fetch(CORS_PROXY + encodeURIComponent(productHref));
-    console.log('[SearchPC] Product page status:', resp2.status);
-    if (!resp2.ok) throw new Error('Product page HTTP ' + resp2.status);
-
+    if (!resp2.ok) throw new Error('Product HTTP ' + resp2.status);
     var html2 = await resp2.text();
-    console.log('[SearchPC] Product HTML length:', html2.length);
-
-    var doc2 = new DOMParser().parseFromString(html2, 'text/html');
-
-    // Try price element IDs in preferred order: used → complete → loose
+    var doc2  = new DOMParser().parseFromString(html2, 'text/html');
     var priceEl =
       doc2.getElementById('used_price') ||
       doc2.getElementById('complete_price') ||
       doc2.getElementById('loose_price');
+    if (!priceEl) throw new Error('Price not found');
+    var price = parseFloat(priceEl.textContent.replace(/[$,]/g, '').trim());
+    if (!isFinite(price) || price <= 0) throw new Error('Invalid price');
 
-    console.log('[SearchPC] Price element:', priceEl ? '#' + priceEl.id + ' = "' + priceEl.textContent.trim() + '"' : 'NOT FOUND');
-    if (!priceEl) throw new Error('Price element not found on product page');
-
-    var raw   = priceEl.textContent.replace(/[$,]/g, '').trim();
-    var price = parseFloat(raw);
-    console.log('[SearchPC] Parsed price:', price);
-    if (!isFinite(price) || price <= 0) throw new Error('Invalid price "' + raw + '"');
-
-    // Populate the field and trigger all downstream calculations
     priceInput.value = price.toFixed(2);
     row.price        = price.toFixed(2);
     updateRowCalcs(rowId);
     updateTotals();
-
     btn.textContent = 'Search PC';
     btn.disabled    = false;
   } catch (e) {
-    console.error('[SearchPC] Failed:', e.message);
     err.textContent   = 'Not found \u2014 enter manually';
     err.style.display = 'block';
     btn.textContent   = 'Search PC';
@@ -501,14 +795,11 @@ function onPctInput(colId, value) {
   updateTotals();
 }
 
-// ── Add / Remove % columns ────────────────────────────────────────────────────
 function addPctCol() {
   var col = { id: nextColId++, pct: 70 };
   pctCols.push(col);
-
   var hdrAnchor = el('hdr-del-anchor');
   el('headerRow').insertBefore(buildColTh(col), hdrAnchor);
-
   var bodyRows = document.querySelectorAll('#tableBody tr');
   for (var i = 0; i < bodyRows.length; i++) {
     var rowId = parseInt(bodyRows[i].id.replace('row-', ''), 10);
@@ -516,10 +807,8 @@ function addPctCol() {
     bodyRows[i].insertBefore(buildOfferTd(col, rowId), delTd);
     updateRowColCalc(rowId, col.id);
   }
-
   var ftrAnchor = el('ftr-del-anchor');
   el('footerRow').insertBefore(buildFootColTd(col), ftrAnchor);
-
   updateTotals();
 }
 
@@ -528,14 +817,11 @@ function removePctCol(colId) {
   var newCols = [];
   for (var i = 0; i < pctCols.length; i++) { if (pctCols[i].id !== colId) newCols.push(pctCols[i]); }
   pctCols = newCols;
-
   var dead = document.querySelectorAll('[data-colid="' + colId + '"]');
   for (var j = 0; j < dead.length; j++) dead[j].parentNode.removeChild(dead[j]);
-
   updateTotals();
 }
 
-// ── Add / Delete rows ─────────────────────────────────────────────────────────
 function addRow(data) {
   var row = data || { id: nextId++, item: '', qty: '1', price: '' };
   if (!data) rows.push(row);
@@ -554,7 +840,6 @@ function deleteRow(id) {
   updateTotals();
 }
 
-// ── Save / Load ───────────────────────────────────────────────────────────────
 function saveSession() {
   var data = { pctCols: pctCols, rows: rows };
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -573,26 +858,18 @@ function loadSession(e) {
   reader.onload = function (ev) {
     try {
       var data = JSON.parse(ev.target.result);
-
-      // Clear rows
       rows = []; nextId = 1;
       el('tableBody').innerHTML = '';
-
-      // Remove existing dynamic columns from header and footer
       var oldCols = document.querySelectorAll('[data-colid]');
       for (var i = 0; i < oldCols.length; i++) oldCols[i].parentNode.removeChild(oldCols[i]);
-
-      // Restore pct columns
       pctCols = []; nextColId = 1;
       var savedCols = Array.isArray(data.pctCols) ? data.pctCols : [];
-      // Legacy support: old format used pct1/pct2/pct3
       if (savedCols.length === 0 && (data.pct1 != null || data.pct2 != null || data.pct3 != null)) {
         if (data.pct1 != null) savedCols.push({ id: 1, pct: data.pct1 });
         if (data.pct2 != null) savedCols.push({ id: 2, pct: data.pct2 });
         if (data.pct3 != null) savedCols.push({ id: 3, pct: data.pct3 });
       }
       if (savedCols.length === 0) savedCols = [{ id: 1, pct: 85 }, { id: 2, pct: 75 }, { id: 3, pct: 65 }];
-
       var hdrAnchor = el('hdr-del-anchor');
       var ftrAnchor = el('ftr-del-anchor');
       for (var c = 0; c < savedCols.length; c++) {
@@ -602,8 +879,6 @@ function loadSession(e) {
         el('headerRow').insertBefore(buildColTh(col), hdrAnchor);
         el('footerRow').insertBefore(buildFootColTd(col), ftrAnchor);
       }
-
-      // Restore rows
       if (Array.isArray(data.rows)) {
         for (var r = 0; r < data.rows.length; r++) {
           var row = data.rows[r];
@@ -623,12 +898,8 @@ function loadSession(e) {
   e.target.value = '';
 }
 
-// ── PDF Export (uses browser print dialog — save as PDF) ─────────────────────
-function exportPDF() {
-  window.print();
-}
+function exportPDF() { window.print(); }
 
-// ── Clear All ─────────────────────────────────────────────────────────────────
 function clearAll() {
   if (!confirm('Clear all rows? This cannot be undone.')) return;
   rows = []; nextId = 1;
@@ -636,7 +907,7 @@ function clearAll() {
   updateTotals();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── Init Lot Comp ────────────────────────────────────────────────
 (function init() {
   var hdrAnchor = el('hdr-del-anchor');
   var ftrAnchor = el('ftr-del-anchor');
@@ -646,6 +917,151 @@ function clearAll() {
   }
   addRow(); addRow(); addRow();
 })();
+
+// ════════════════════════════════════════════════════════════════
+// PAGE 2 — TEMU PROMO CALCULATOR
+// ════════════════════════════════════════════════════════════════
+
+// ── Helpers ──────────────────────────────────────────────────────
+function fmtD(n) {
+  if (!isFinite(n)) return '—';
+  var sign = n < 0 ? '-$' : '$';
+  return sign + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function fmtPct(n) {
+  if (!isFinite(n)) return '—';
+  return n.toFixed(1) + '%';
+}
+function numVal(id) { return parseFloat(document.getElementById(id).value); }
+function setTxt(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+function setErr(id, msg) {
+  var e = document.getElementById(id);
+  if (!e) return;
+  if (msg) { e.textContent = msg; e.style.display = 'block'; }
+  else      { e.textContent = ''; e.style.display = 'none'; }
+}
+
+// ── Claim Credit Calculator ──────────────────────────────────────
+function calcClaimCredit() {
+  var r1     = numVal('cc-r1') / 100;
+  var t1     = numVal('cc-t1');
+  var r2     = numVal('cc-r2') / 100;
+  var t2     = numVal('cc-t2');
+  var r3     = numVal('cc-r3') / 100;
+  var target = numVal('cc-target');
+
+  // Validate
+  if (!isFinite(r1) || !isFinite(t1) || !isFinite(r2) || !isFinite(t2) ||
+      !isFinite(r3) || !isFinite(target)) {
+    setErr('cc-err', 'Please fill in all fields with valid numbers.');
+    clearCCResults(); return;
+  }
+  if (t2 <= t1) {
+    setErr('cc-err', 'Tier 2 threshold must be greater than Tier 1 threshold.');
+    clearCCResults(); return;
+  }
+  if (target <= 0) {
+    setErr('cc-err', 'Credit target must be greater than 0.');
+    clearCCResults(); return;
+  }
+  setErr('cc-err', null);
+
+  // Tier credit maximums
+  var credit1max = r1 * t1;
+  var credit2max = r2 * (t2 - t1);
+  var cumAfter1  = credit1max;
+  var cumAfter2  = credit1max + credit2max;
+
+  var spend, t1spend, t2spend, t3spend, t1credit, t2credit, t3credit;
+
+  if (target <= cumAfter1) {
+    // Hit target within tier 1
+    t1spend  = (r1 > 0) ? target / r1 : 0;
+    t2spend  = 0;
+    t3spend  = 0;
+    t1credit = target;
+    t2credit = 0;
+    t3credit = 0;
+    spend    = t1spend;
+  } else if (target <= cumAfter2) {
+    // Hit target within tier 2
+    t1spend  = t1;
+    t1credit = credit1max;
+    var needFromT2 = target - cumAfter1;
+    t2spend  = (r2 > 0) ? needFromT2 / r2 : 0;
+    t2credit = needFromT2;
+    t3spend  = 0;
+    t3credit = 0;
+    spend    = t1 + t2spend;
+  } else {
+    // Need tier 3
+    t1spend  = t1;
+    t1credit = credit1max;
+    t2spend  = t2 - t1;
+    t2credit = credit2max;
+    var needFromT3 = target - cumAfter2;
+    t3spend  = (r3 > 0) ? needFromT3 / r3 : 0;
+    t3credit = needFromT3;
+    spend    = t2 + t3spend;
+  }
+
+  if (r1 === 0 && target > 0 && cumAfter1 === 0 && r2 === 0 && cumAfter2 === 0 && r3 === 0) {
+    setErr('cc-err', 'All rates are 0 — cannot reach credit target.');
+    clearCCResults(); return;
+  }
+
+  var netCost  = spend - target;
+  var discount = (spend > 0) ? (target / spend) * 100 : 0;
+
+  setTxt('cc-spend',    fmtD(spend));
+  setTxt('cc-credit',   fmtD(target));
+  setTxt('cc-net',      fmtD(netCost));
+  setTxt('cc-disc',     fmtPct(discount));
+  setTxt('cc-t1-spend', fmtD(t1spend));
+  setTxt('cc-t1-credit',fmtD(t1credit));
+  setTxt('cc-t2-spend', fmtD(t2spend));
+  setTxt('cc-t2-credit',fmtD(t2credit));
+  setTxt('cc-t3-spend', fmtD(t3spend));
+  setTxt('cc-t3-credit',fmtD(t3credit));
+}
+
+function clearCCResults() {
+  var ids = ['cc-spend','cc-credit','cc-net','cc-disc',
+             'cc-t1-spend','cc-t1-credit','cc-t2-spend','cc-t2-credit','cc-t3-spend','cc-t3-credit'];
+  for (var i = 0; i < ids.length; i++) setTxt(ids[i], '—');
+}
+
+// ── Win Credit Calculator ─────────────────────────────────────────
+function calcWinCredit() {
+  var A = numVal('wc-a');
+  var B = numVal('wc-b');
+  var C = numVal('wc-c');
+  var D = numVal('wc-d');
+
+  if (!isFinite(A) || !isFinite(B) || !isFinite(C) || !isFinite(D)) {
+    setErr('wc-err', 'Please fill in all fields with valid numbers.');
+    setTxt('wc-spend', '—'); setTxt('wc-remaining', '—'); setTxt('wc-rate', '—');
+    return;
+  }
+  if (C === 0 || D === 0) {
+    setErr('wc-err', 'C and D cannot be zero.');
+    setTxt('wc-spend', '—'); setTxt('wc-remaining', '—'); setTxt('wc-rate', '—');
+    return;
+  }
+  setErr('wc-err', null);
+
+  var X         = (A - B) / C / D;
+  var remaining = A - B;
+  var rate      = (X > 0) ? (A / X) * 100 : 0;
+
+  setTxt('wc-spend',     fmtD(X));
+  setTxt('wc-remaining', fmtD(remaining));
+  setTxt('wc-rate',      fmtPct(rate));
+}
+
+// ── Init Temu Calculators ────────────────────────────────────────
+calcClaimCredit();
+calcWinCredit();
 </script>
 </body>
 </html>
