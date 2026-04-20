@@ -542,10 +542,6 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
         <span class="r-label">Spend (X)</span>
         <span class="r-value blue" id="wc-spend">—</span>
       </div>
-      <div class="result-row">
-        <span class="r-label">Remaining to confirm</span>
-        <span class="r-value orange" id="wc-remaining">—</span>
-      </div>
       <hr class="result-divider">
       <div class="result-row">
         <span class="r-label">Total cash back</span>
@@ -1057,7 +1053,7 @@ function calcWinCredit() {
   var C      = numVal('wc-c');
   var payout = numVal('wc-payout');
 
-  var clearIds = ['wc-spend','wc-remaining','wc-back','wc-net','wc-disc'];
+  var clearIds = ['wc-spend','wc-back','wc-net','wc-disc'];
   function clearAll() { for (var i=0;i<clearIds.length;i++) setTxt(clearIds[i],'—'); }
 
   if (!isFinite(A) || !isFinite(B) || !isFinite(C) || !isFinite(payout)) {
@@ -1070,13 +1066,11 @@ function calcWinCredit() {
   }
   setErr('wc-err', null);
 
-  var X         = (A - B) / C / WC_D;
-  var remaining = A - B;
-  var netCost   = X - payout;
-  var discount  = (X > 0) ? (payout / X) * 100 : 0;
+  var X        = (A - B) / C / WC_D;
+  var netCost  = X - payout;
+  var discount = (X > 0) ? (payout / X) * 100 : 0;
 
   setTxt('wc-spend',     fmtD(X));
-  setTxt('wc-remaining', fmtD(remaining));
   setTxt('wc-back',      fmtD(payout));
   setTxt('wc-net',       fmtD(netCost));
   setTxt('wc-disc',      fmtPct(discount));
