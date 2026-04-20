@@ -281,23 +281,6 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
 
 .result-divider { border: none; border-top: 1px solid var(--border); margin: 2px 0; }
 
-.tier-breakdown {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--border);
-}
-.tier-breakdown .tb-title {
-  font-size: .68rem; text-transform: uppercase; letter-spacing: .7px;
-  color: var(--muted); margin-bottom: 6px;
-}
-.tier-row {
-  display: flex; justify-content: space-between;
-  font-size: .75rem; color: var(--text); padding: 3px 0;
-  border-bottom: 1px solid rgba(46,63,92,.4);
-}
-.tier-row:last-child { border-bottom: none; }
-.tier-row .t-label { color: var(--muted); }
-.tier-row .t-credit { color: var(--green); font-weight: 600; }
 
 /* ── Print / PDF styles ──────────────────────────────── */
 @media print {
@@ -466,33 +449,7 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
         <span class="r-value gold" id="cc-disc">—</span>
       </div>
 
-      <div class="tier-breakdown">
-        <div class="tb-title">Per-tier breakdown</div>
-        <div class="tier-row">
-          <span class="t-label">Tier 1 spend</span>
-          <span class="t-credit" id="cc-t1-spend">—</span>
-        </div>
-        <div class="tier-row">
-          <span class="t-label">Tier 1 credit</span>
-          <span class="t-credit" id="cc-t1-credit">—</span>
-        </div>
-        <div class="tier-row">
-          <span class="t-label">Tier 2 spend</span>
-          <span class="t-credit" id="cc-t2-spend">—</span>
-        </div>
-        <div class="tier-row">
-          <span class="t-label">Tier 2 credit</span>
-          <span class="t-credit" id="cc-t2-credit">—</span>
-        </div>
-        <div class="tier-row">
-          <span class="t-label">Tier 3 spend</span>
-          <span class="t-credit" id="cc-t3-spend">—</span>
-        </div>
-        <div class="tier-row">
-          <span class="t-label">Tier 3 credit</span>
-          <span class="t-credit" id="cc-t3-credit">—</span>
-        </div>
-      </div>
+
     </div>
   </div><!-- /claim credit card -->
 
@@ -1021,21 +978,14 @@ function calcClaimCredit() {
   var netCost  = spend - target;
   var discount = (spend > 0) ? (target / spend) * 100 : 0;
 
-  setTxt('cc-spend',    fmtD(spend));
-  setTxt('cc-credit',   fmtD(target));
-  setTxt('cc-net',      fmtD(netCost));
-  setTxt('cc-disc',     fmtPct(discount));
-  setTxt('cc-t1-spend', fmtD(t1spend));
-  setTxt('cc-t1-credit',fmtD(t1credit));
-  setTxt('cc-t2-spend', fmtD(t2spend));
-  setTxt('cc-t2-credit',fmtD(t2credit));
-  setTxt('cc-t3-spend', fmtD(t3spend));
-  setTxt('cc-t3-credit',fmtD(t3credit));
+  setTxt('cc-spend',  fmtD(spend));
+  setTxt('cc-credit', fmtD(target));
+  setTxt('cc-net',    fmtD(netCost));
+  setTxt('cc-disc',   fmtPct(discount));
 }
 
 function clearCCResults() {
-  var ids = ['cc-spend','cc-credit','cc-net','cc-disc',
-             'cc-t1-spend','cc-t1-credit','cc-t2-spend','cc-t2-credit','cc-t3-spend','cc-t3-credit'];
+  var ids = ['cc-spend','cc-credit','cc-net','cc-disc'];
   for (var i = 0; i < ids.length; i++) setTxt(ids[i], '—');
 }
 
