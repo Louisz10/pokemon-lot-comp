@@ -502,6 +502,7 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
     <p class="card-desc">
       Calculate spend needed to win credit using the formula:
       <strong style="color:var(--gold)">X = (A &minus; B) / C / D</strong>
+      &nbsp;&middot;&nbsp; D is locked at 1.055 (tax).
     </p>
 
     <div class="input-group">
@@ -522,11 +523,16 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
       </div>
       <div class="input-row">
         <label>D &nbsp;(tax mult.)</label>
-        <input type="number" class="temu-input" id="wc-d" value="1.055" min="0" step="any" oninput="calcWinCredit()">
+        <div style="flex:1;padding:7px 10px;background:#0a1020;border:1px solid var(--border);border-radius:6px;color:var(--gold);font-weight:700;font-size:.875rem;">1.055</div>
         <span class="input-unit"></span>
       </div>
+      <div class="input-row">
+        <label>Total cash back</label>
+        <input type="number" class="temu-input" id="wc-payout" value="0" min="0" step="any" oninput="calcWinCredit()">
+        <span class="input-unit">$</span>
+      </div>
       <div style="font-size:.7rem;color:var(--muted);margin-left:152px;margin-top:-4px;">
-        D = 1 + tax rate (e.g. 1.055 for 5.5% tax)
+        Total cash/credit returned by the promo (used for net cost).
       </div>
     </div>
     <div id="wc-err" class="input-error" style="display:none;"></div>
@@ -542,8 +548,16 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
       </div>
       <hr class="result-divider">
       <div class="result-row">
-        <span class="r-label">Effective credit rate</span>
-        <span class="r-value gold" id="wc-rate">—</span>
+        <span class="r-label">Total cash back</span>
+        <span class="r-value green" id="wc-back">—</span>
+      </div>
+      <div class="result-row">
+        <span class="r-label">Net cost</span>
+        <span class="r-value orange" id="wc-net">—</span>
+      </div>
+      <div class="result-row">
+        <span class="r-label">Effective discount</span>
+        <span class="r-value gold" id="wc-disc">—</span>
       </div>
     </div>
   </div><!-- /win credit card -->
@@ -1035,31 +1049,37 @@ function clearCCResults() {
 }
 
 // ── Win Credit Calculator ─────────────────────────────────────────
-function calcWinCredit() {
-  var A = numVal('wc-a');
-  var B = numVal('wc-b');
-  var C = numVal('wc-c');
-  var D = numVal('wc-d');
+var WC_D = 1.055;  // locked tax multiplier (5.5% tax)
 
-  if (!isFinite(A) || !isFinite(B) || !isFinite(C) || !isFinite(D)) {
+function calcWinCredit() {
+  var A      = numVal('wc-a');
+  var B      = numVal('wc-b');
+  var C      = numVal('wc-c');
+  var payout = numVal('wc-payout');
+
+  var clearIds = ['wc-spend','wc-remaining','wc-back','wc-net','wc-disc'];
+  function clearAll() { for (var i=0;i<clearIds.length;i++) setTxt(clearIds[i],'—'); }
+
+  if (!isFinite(A) || !isFinite(B) || !isFinite(C) || !isFinite(payout)) {
     setErr('wc-err', 'Please fill in all fields with valid numbers.');
-    setTxt('wc-spend', '—'); setTxt('wc-remaining', '—'); setTxt('wc-rate', '—');
-    return;
+    clearAll(); return;
   }
-  if (C === 0 || D === 0) {
-    setErr('wc-err', 'C and D cannot be zero.');
-    setTxt('wc-spend', '—'); setTxt('wc-remaining', '—'); setTxt('wc-rate', '—');
-    return;
+  if (C === 0) {
+    setErr('wc-err', 'C cannot be zero.');
+    clearAll(); return;
   }
   setErr('wc-err', null);
 
-  var X         = (A - B) / C / D;
+  var X         = (A - B) / C / WC_D;
   var remaining = A - B;
-  var rate      = (X > 0) ? (A / X) * 100 : 0;
+  var netCost   = X - payout;
+  var discount  = (X > 0) ? (payout / X) * 100 : 0;
 
   setTxt('wc-spend',     fmtD(X));
   setTxt('wc-remaining', fmtD(remaining));
-  setTxt('wc-rate',      fmtPct(rate));
+  setTxt('wc-back',      fmtD(payout));
+  setTxt('wc-net',       fmtD(netCost));
+  setTxt('wc-disc',      fmtPct(discount));
 }
 
 // ── Init Temu Calculators ────────────────────────────────────────
