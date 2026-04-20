@@ -522,17 +522,13 @@ tfoot td { padding: 11px 8px; border-top: 2px solid var(--gold); font-weight: 70
         <span class="input-unit"></span>
       </div>
       <div class="input-row">
-        <label>D &nbsp;(tax mult.)</label>
-        <div style="flex:1;padding:7px 10px;background:#0a1020;border:1px solid var(--border);border-radius:6px;color:var(--gold);font-weight:700;font-size:.875rem;">1.055</div>
-        <span class="input-unit"></span>
-      </div>
-      <div class="input-row">
         <label>Total cash back</label>
         <input type="number" class="temu-input" id="wc-payout" value="0" min="0" step="any" oninput="calcWinCredit()">
         <span class="input-unit">$</span>
       </div>
-      <div style="font-size:.7rem;color:var(--muted);margin-left:152px;margin-top:-4px;">
-        Total cash/credit returned by the promo (used for net cost).
+      <div style="font-size:.7rem;color:var(--muted);margin-left:152px;margin-top:-4px;line-height:1.4;">
+        Total cash/credit returned by the promo (used for net cost).<br>
+        Note: D is locked at <strong style="color:var(--gold)">1.055</strong> (1 + 5.5% tax).
       </div>
     </div>
     <div id="wc-err" class="input-error" style="display:none;"></div>
